@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DomainRador — IP & DNS Lookup</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f0f4ff;
+  --white: #ffffff;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --muted: #64748b;
+  --subtle: #94a3b8;
+  --blue: #2563eb;
+  --blue-dark: #1d4ed8;
+  --blue-light: #eff6ff;
+  --blue-border: #bfdbfe;
+  --green: #16a34a;
+  --green-bg: #f0fdf4;
+  --purple: #7c3aed;
+  --purple-bg: #f5f3ff;
+  --orange: #ea580c;
+  --orange-bg: #fff7ed;
+  --shadow: 0 4px 24px rgba(0,0,0,0.07);
+  --radius: 16px;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--bg);
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+}
+
+/* HEADER */
+header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 48px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.logo-icon {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+
+.header-badge {
+  background: var(--blue-light);
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 99px;
+  border: 1px solid var(--blue-border);
+}
+
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, #1e1b4b 0%, #2563eb 60%, #7c3aed 100%);
+  padding: 60px 48px;
+  text-align: center;
+  color: white;
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 99px;
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.hero h1 {
+  font-size: clamp(30px, 5vw, 52px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  margin-bottom: 14px;
+}
+
+.hero p {
+  font-size: 16px;
+  opacity: 0.8;
+  max-width: 480px;
+  margin: 0 auto 32px;
+  line-height: 1.7;
+}
+
+/* SEARCH BOX */
+.search-wrap {
+  max-width: 580px;
+  margin: 0 auto;
+  display: flex;
+  gap: 10px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 14px;
+  padding: 8px;
+}
+
+.search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: white;
+  padding: 10px 14px;
+}
+
+.search-input::placeholder { color: rgba(255,255,255,0.5); }
+
+.search-btn {
+  background: white;
+  color: var(--blue);
+  border: none;
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.search-btn:hover { background: var(--blue-light); transform: translateY(-1px); }
+.search-btn.loading { opacity: 0.6; pointer-events: none; }
+
+.examples {
+  margin-top: 14px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+}
+
+.example-btn {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 99px;
+  color: rgba(255,255,255,0.8);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 12px;
+  cursor: pointer;
+  margin: 0 4px;
+  transition: background 0.15s;
+  font-family: 'Inter', sans-serif;
+}
+
+.example-btn:hover { background: rgba(255,255,255,0.2); }
+
+/* MAIN */
+.main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 48px 80px;
+}
+
+@media(max-width:768px) {
+  .main { padding: 24px 16px 60px; }
+  header { padding: 0 16px; }
+  .hero { padding: 40px 16px; }
+  .search-wrap { flex-direction: column; }
+}
+
+/* EMPTY STATE */
+.empty {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--muted);
+}
+
+.empty-icon { font-size: 56px; margin-bottom: 16px; }
+.empty-title { font-size: 18px; font-weight: 600; color: var(--muted); margin-bottom: 8px; }
+.empty-sub { font-size: 14px; color: var(--subtle); }
+
+/* RESULT */
+#result { display: none; }
+#result.show { display: block; animation: rise 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* TOP BANNER */
+.result-banner {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.banner-left { flex: 1; }
+.banner-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.banner-domain {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+
+.banner-ip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--blue-light);
+  border: 1px solid var(--blue-border);
+  border-radius: 99px;
+  padding: 6px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--blue);
+}
+
+.banner-right {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.info-chip {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  text-align: center;
+  min-width: 110px;
+}
+
+.chip-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--subtle);
+  margin-bottom: 5px;
+}
+
+.chip-val {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* GRID */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+@media(max-width:768px) { .grid-2 { grid-template-columns: 1fr; } }
+
+/* CARD */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.card-head {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.card-body { padding: 20px 24px; }
+
+/* INFO ROWS */
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 11px 0;
+  border-bottom: 1px solid #f8fafc;
+  gap: 16px;
+}
+
+.info-row:last-child { border-bottom: none; }
+
+.info-key {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+}
+
+.info-val {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  text-align: right;
+  word-break: break-all;
+}
+
+/* DNS RECORDS */
+.dns-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media(max-width:600px) { .dns-grid { grid-template-columns: 1fr; } }
+
+.dns-box {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.dns-type {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 3px 10px;
+  border-radius: 99px;
+  margin-bottom: 10px;
+}
+
+.dns-type.A    { background: #dbeafe; color: #1d4ed8; }
+.dns-type.MX   { background: #d1fae5; color: #065f46; }
+.dns-type.NS   { background: #ede9fe; color: #5b21b6; }
+.dns-type.TXT  { background: #fff7ed; color: #9a3412; }
+.dns-type.CNAME{ background: #fce7f3; color: #9d174d; }
+
+.dns-val {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.7;
+  word-break: break-all;
+}
+
+.dns-empty {
+  font-size: 12px;
+  color: var(--subtle);
+  font-style: italic;
+}
+
+/* FOOTER */
+footer {
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  padding: 22px 48px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--subtle);
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🌐</div>
+    DomainRadar
+  </div>
+  <div class="header-badge">IP & DNS Lookup Tool</div>
+</header>
+
+<div class="hero">
+  <div class="hero-tag">🔍 Real-time Network Intelligence</div>
+  <h1>IP & DNS<br>Lookup Tool</h1>
+  <p>Enter any domain or IP address to instantly reveal its IP, location, ISP, and full DNS records.</p>
+
+  <div class="search-wrap">
+    <input class="search-input" id="domain-input" type="text"
+           placeholder="Enter domain e.g. google.com"
+           onkeydown="if(event.key==='Enter') runLookup()">
+    <button class="search-btn" id="search-btn" onclick="runLookup()">
+      🔍 Lookup
+    </button>
+  </div>
+
+  <div class="examples">
+    Try: 
+    <button class="example-btn" onclick="setDomain('google.com')">google.com</button>
+    <button class="example-btn" onclick="setDomain('github.com')">github.com</button>
+    <button class="example-btn" onclick="setDomain('openai.com')">openai.com</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- EMPTY STATE -->
+  <div class="empty" id="empty-state">
+    <div class="empty-icon">🌐</div>
+    <div class="empty-title">Enter a domain to get started</div>
+    <div class="empty-sub">Try google.com, github.com, or any website you want to analyze</div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result">
+
+    <!-- BANNER -->
+    <div class="result-banner">
+      <div class="banner-left">
+        <div class="banner-tag">Lookup Result</div>
+        <div class="banner-domain" id="r-domain">—</div>
+        <div class="banner-ip" id="r-ip">📍 —</div>
+      </div>
+      <div class="banner-right">
+        <div class="info-chip">
+          <div class="chip-label">Country</div>
+          <div class="chip-val" id="r-country">—</div>
+        </div>
+        <div class="info-chip">
+          <div class="chip-label">City</div>
+          <div class="chip-val" id="r-city">—</div>
+        </div>
+        <div class="info-chip">
+          <div class="chip-label">Timezone</div>
+          <div class="chip-val" id="r-tz">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TWO COLUMNS -->
+    <div class="grid-2">
+
+      <!-- GEO INFO -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon" style="background:#eff6ff;">🗺️</div>
+          <div class="card-title">Geolocation Info</div>
+        </div>
+        <div class="card-body">
+          <div class="info-row">
+            <span class="info-key">IP Address</span>
+            <span class="info-val" id="g-ip">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Country</span>
+            <span class="info-val" id="g-country">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Region</span>
+            <span class="info-val" id="g-region">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">City</span>
+            <span class="info-val" id="g-city">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Timezone</span>
+            <span class="info-val" id="g-tz">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Coordinates</span>
+            <span class="info-val" id="g-coords">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ISP INFO -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon" style="background:#f5f3ff;">🏢</div>
+          <div class="card-title">ISP & Network Info</div>
+        </div>
+        <div class="card-body">
+          <div class="info-row">
+            <span class="info-key">ISP</span>
+            <span class="info-val" id="n-isp">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Organization</span>
+            <span class="info-val" id="n-org">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Reverse DNS</span>
+            <span class="info-val" id="n-rdns">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">A Records</span>
+            <span class="info-val" id="n-a">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">CNAME</span>
+            <span class="info-val" id="n-cname">—</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- DNS RECORDS FULL -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon" style="background:#f0fdf4;">📡</div>
+        <div class="card-title">Full DNS Records</div>
+      </div>
+      <div class="card-body">
+        <div class="dns-grid" id="dns-grid"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  🌐 DomainRadar — Real-time IP & DNS Intelligence · Built with Python, FastAPI & dnspython · Deployed on Hugging Face Spaces
+<br>
+<h2 style="font-size:14px; margin-top:8px;">Built by Bindu</h2>
+
+</footer>
+
+<script>
+  function setDomain(d) {
+    document.getElementById('domain-input').value = d;
+    runLookup();
+  }
+
+  async function runLookup() {
+    const input = document.getElementById('domain-input').value.trim();
+    if (!input) return;
+
+    const btn = document.getElementById('search-btn');
+    btn.classList.add('loading');
+    btn.textContent = '⏳ Looking up...';
+
+    try {
+      const res  = await fetch(`/lookup?domain=${encodeURIComponent(input)}`);
+      const data = await res.json();
+      renderResult(data);
+    } catch(e) {
+      alert('Error connecting to server. Make sure the backend is running.');
+    }
+
+    btn.classList.remove('loading');
+    btn.textContent = '🔍 Lookup';
+  }
+
+  function renderResult(d) {
+    // Banner
+    document.getElementById('r-domain').textContent  = d.domain || '—';
+    document.getElementById('r-ip').textContent      = '📍 ' + (d.ip || '—');
+    document.getElementById('r-country').textContent = (d.country_code || '—');
+    document.getElementById('r-city').textContent    = (d.city || '—');
+    document.getElementById('r-tz').textContent      = (d.timezone || '—').split('/')[1] || d.timezone || '—';
+
+    // Geo
+    document.getElementById('g-ip').textContent      = d.ip || '—';
+    document.getElementById('g-country').textContent = d.country || '—';
+    document.getElementById('g-region').textContent  = d.region || '—';
+    document.getElementById('g-city').textContent    = d.city || '—';
+    document.getElementById('g-tz').textContent      = d.timezone || '—';
+    document.getElementById('g-coords').textContent  = d.lat && d.lon ? `${d.lat}, ${d.lon}` : '—';
+
+    // Network
+    document.getElementById('n-isp').textContent     = d.isp || '—';
+    document.getElementById('n-org').textContent     = d.org || '—';
+    document.getElementById('n-rdns').textContent    = d.reverse_dns || '—';
+    document.getElementById('n-a').textContent       = (d.dns?.A || []).join(', ') || '—';
+    document.getElementById('n-cname').textContent   = (d.dns?.CNAME || []).join(', ') || 'None';
+
+    // DNS records
+    const types = ['A','MX','NS','TXT','CNAME'];
+    document.getElementById('dns-grid').innerHTML = types.map(t => {
+      const records = d.dns?.[t] || [];
+      return `
+        <div class="dns-box">
+          <div class="dns-type ${t}">${t} Record</div>
+          <div class="${records.length ? 'dns-val' : 'dns-empty'}">
+            ${records.length ? records.join('<br>') : 'No records found'}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Show result
+    document.getElementById('empty-state').style.display = 'none';
+    const r = document.getElementById('result');
+    r.classList.remove('show');
+    void r.offsetWidth;
+    r.classList.add('show');
+  }
+</script>
+</body>
+</html>
